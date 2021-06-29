@@ -4,14 +4,27 @@
 resource "google_logging_project_sink" "pubsub-sink" {
   name = "export-logs-to-datadog"
 
-  destination = "pubsub.googleapis.com/projects/${var.project}/topics/cloudrun-metrics"
+  destination = "pubsub.googleapis.com/projects/${var.project}/topics/${google_pubsub_topic.cloudrun-metrics.name}"
+  unique_writer_identity = true
+  depends_on = [
+    google_pubsub_topic.cloudrun-metrics
+  ]
+}
+
+# Because the sink uses a unique_writer, grant that writer access to the topic.
+resource "google_project_iam_binding" "log-writer" {
+  role = "roles/pubsub.publisher"
+
+  members = [
+    google_logging_project_sink.pubsub-sink.writer_identity,
+  ]
 }
 
 # PubSub Topic that DataSog will subscribe to. StackDriver would stream
 # cloudrun metrics on this topic
 
 resource "google_pubsub_topic" "cloudrun-metrics" {
-  name = "${var.project}-metrics-stream-topic"
+  name = "metrics-stream-topic"
 
   labels = {
     explorer = "datadog"
@@ -21,7 +34,7 @@ resource "google_pubsub_topic" "cloudrun-metrics" {
 # Push Forwarder PubSub Subscriber to send metrics to DataSog
 
 resource "google_pubsub_subscription" "cloudrun-metrics-sub" {
-  name  = "${var.project}-metrics-stream-sub"
+  name  = "metrics-stream-sub"
   topic = google_pubsub_topic.cloudrun-metrics.name
 
   ack_deadline_seconds = 20
