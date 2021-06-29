@@ -2,11 +2,11 @@
 steps:
   - name: gcr.io/cloud-builders/docker
     args:
-      ["build", "-t", "gcr.io/$PROJECT_ID/img-pythondb:$COMMIT_SHA", "."]
+      ["build", "-t", "gcr.io/$PROJECT_ID/img-pythondb:latest", "."]
     dir: 'apps/pythondb'
 
   - name: "gcr.io/cloud-builders/docker"
-    args: ["push", "gcr.io/$PROJECT_ID/img-pythondb:$COMMIT_SHA"]
+    args: ["push", "gcr.io/$PROJECT_ID/img-pythondb:latest"]
     dir: 'apps/pythondb'
 
   - name: "gcr.io/cloud-builders/gcloud"
@@ -16,7 +16,7 @@ steps:
         "deploy",
         "cloudrun-pythondb",
         "--image",
-        "gcr.io/$PROJECT_ID/img-pythondb:$COMMIT_SHA",
+        "gcr.io/$PROJECT_ID/img-pythondb:latest",
         "--region",
         "us-west1",
         "--platform",
