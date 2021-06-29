@@ -1,52 +1,45 @@
-# Creating Monitoring Channel
-# Essentially, how and where the oncall would be notified
+# Creating PubSub Topics/Subscription and Log Sink for DataDog Monitoring
 
-resource "google_monitoring_notification_channel" "email" {
-  display_name = "Sydecar Oncall"
-  type         = "email"
+# LogSink for StackDriver to stream the logs to PubSub Topic
+resource "google_logging_project_sink" "pubsub-sink" {
+  name = "export-logs-to-datadog"
+
+  destination = "pubsub.googleapis.com/projects/${var.project}/topics/cloudrun-metrics"
+}
+
+# PubSub Topic that DataSog will subscribe to. StackDriver would stream
+# cloudrun metrics on this topic
+
+resource "google_pubsub_topic" "cloudrun-metrics" {
+  name = "${var.project}-metrics-stream-topic"
+
   labels = {
-    email_address = "will@sydecar.io"
+    explorer = "datadog"
   }
 }
 
-# Adding reference code for Slack Channel
-# More details here
-# https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/monitoring_notification_channel
+# Push Forwarder PubSub Subscriber to send metrics to DataSog
 
-/* resource "google_monitoring_notification_channel" "default" {
-  display_name = "Test Slack Channel"
-  type         = "slack"
+resource "google_pubsub_subscription" "cloudrun-metrics-sub" {
+  name  = "${var.project}-metrics-stream-sub"
+  topic = google_pubsub_topic.cloudrun-metrics.name
+
+  ack_deadline_seconds = 20
+
   labels = {
-    "channel_name" = "#foobar"
+    explorer = "datadog"
   }
-  sensitive_labels {
-    auth_token = "one"
-  }
-} */
 
-# Metrics that we are monitoring
-# Below alert will trigger an email notification CloudSql CPU utilization breaches the threshold
-# gcloud alpha monitoring policies list -> List all the monitoring alert policies
-# The above command could be used to build more alerts
+  push_config {
+    push_endpoint = "https://gcp-intake.logs.datadoghq.com/v1/input/aa613ad7d14f09099c3ec53432a8bd68/"
 
-resource "google_monitoring_alert_policy" "cloudsql_cpu_utilization" {
-  display_name = "Alert Policy for CPU utilization exceeding a given threshold"
-  combiner     = "OR"
-  conditions {
-    display_name = "CPU utilization exceeded threshold"
-    condition_threshold {
-      filter          = "metric.type=\"cloudsql.googleapis.com/database/cpu/utilization\" AND resource.type=\"cloudsql_database\" AND resource.label.\"database_id\"=\"${var.project}:${var.db_instance_id}\""
-      duration        = "60s"
-      comparison      = "COMPARISON_GT"
-      threshold_value = 0.80
-      trigger {
-        count = 1
-      }
-      aggregations {
-        alignment_period   = "120s"
-        per_series_aligner = "ALIGN_MEAN"
-      }
-    }
+    # attributes = {
+    #   x-goog-version = "v1"
+    # }
   }
-  notification_channels = [google_monitoring_notification_channel.email.id]
+
+  depends_on = [
+    google_pubsub_topic.cloudrun-metrics
+  ]
+
 }

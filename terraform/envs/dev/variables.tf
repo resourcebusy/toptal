@@ -22,6 +22,7 @@ variable "apis" {
   description = "List of APIs that need to be enabled for the project"
   type        = list(string)
   default = [
+    "cloudasset.googleapis.com",
     "cloudbuild.googleapis.com",
     "cloudresourcemanager.googleapis.com",
     "compute.googleapis.com",
@@ -29,7 +30,7 @@ variable "apis" {
     "iamcredentials.googleapis.com",
     "iam.googleapis.com",
     "logging.googleapis.com",
-    #"monitoring.googleapis.com",
+    "monitoring.googleapis.com",
     #"oslogin.googleapis.com",
     "run.googleapis.com",
     "secretmanager.googleapis.com",
@@ -82,13 +83,6 @@ variable "cloudrun_services" {
   default = {
     "cloudrun-pythondb"     = "img-pythondb:latest"
   }
-}
-
-# dbproxy / bastion host module Variables
-variable "gcp_zone" {
-  description = "The GCP availability zone where the db and Cloud SQL Proxy will be created"
-  type        = string
-  default     = "us-west1-a"
 }
 
 ### Begin Postgres ###
