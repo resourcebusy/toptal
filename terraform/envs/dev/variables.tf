@@ -58,6 +58,7 @@ variable "filename" {
   type        = map(string)
   default = {
     "apps/pythondb/cloudbuild.yaml"     = "apps/pythondb/**"
+    "apps/angular-realworld-example-app-main/cloudbuild.yaml"     = "apps/angular-realworld-example-app-main/**"
   }
 }
 ### END Cloud Build Triggers ###

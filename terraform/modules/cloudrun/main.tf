@@ -12,13 +12,16 @@ resource "google_cloud_run_service" "run_service" {
   template {
     metadata {
       annotations = {
+        "client.knative.dev/user-image"           = "gcr.io/toptal-screening-app/img-pythondb:latest"
+        "run.googleapis.com/client-name"          = "cloud-console"
         "run.googleapis.com/cloudsql-instances"   = var.postgres-conn-str
-        "run.googleapis.com/vpc-access-connector" = var.vpc_connector_name
+        "run.googleapis.com/vpc-access-connector" = "projects/${var.gcp_project_id}/locations/${var.region}/connectors/${var.vpc_connector_name}"
         "run.googleapis.com/vpc-access-egress"    = "private-ranges-only"
         "autoscaling.knative.dev/maxScale"        = 100
       }
     }
     spec {
+      service_account_name  = "484881786086-compute@developer.gserviceaccount.com"
       containers {
         image = "gcr.io/${var.gcp_project_id}/${each.value}"
         env {
