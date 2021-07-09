@@ -2,12 +2,7 @@ steps:
 
   - name: 'gcr.io/cloud-builders/docker'
     args:
-      [
-        'build', '.',
-        '--tag=gcr.io/$PROJECT_ID/ng:latest',
-        '--file=Dockerfile',
-        '--build-arg', 'ng_version=latest',
-      ]
+      [ "build", "-t", "gcr.io/$PROJECT_ID/ng:latest", "." ]
 
 images:
   - 'gcr.io/$PROJECT_ID/ng:latest'
