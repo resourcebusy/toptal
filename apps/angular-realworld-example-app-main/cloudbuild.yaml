@@ -7,7 +7,7 @@ steps:
     
 
   # Build production package
-  - name: octopop/gcbuilder-ng
+  - name: "octopop/gcbuilder-ng"
     args: ["build", "--prod"]
     
 
