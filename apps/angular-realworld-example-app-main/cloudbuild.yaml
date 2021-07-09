@@ -1,0 +1,17 @@
+steps:
+
+  # Install dependency packages using yarn
+  - name: node
+    entrypoint: yarn
+    args: ["install"]
+    
+
+  # Build production package
+  - name: "gcr.io/stable-argon-316803/ng"
+    args: ["build", "--prod"]
+    
+
+  # Deploy to google cloud app engine
+  - name: "gcr.io/cloud-builders/gcloud"
+    args: ["app", "deploy", "--version=prod"]
+    
