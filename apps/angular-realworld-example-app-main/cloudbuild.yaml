@@ -4,14 +4,17 @@ steps:
   - name: node
     entrypoint: yarn
     args: ["install"]
+    dir: 'apps/angular-realworld-example-app-main'
     
 
   # Build production package
   - name: "octopop/gcbuilder-ng"
     args: ["build", "--prod"]
+    dir: 'apps/angular-realworld-example-app-main'
     
 
   # Deploy to google cloud app engine
   - name: "gcr.io/cloud-builders/gcloud"
     args: ["app", "deploy", "--version=prod"]
+    dir: 'apps/angular-realworld-example-app-main'
     
