@@ -7,7 +7,7 @@ steps:
     
 
   # Build production package
-  - name: "gcr.io/stable-argon-316803/ng"
+  - name: "octopop/gcbuilder-ng"
     args: ["build", "--prod"]
     
 
