@@ -73,7 +73,7 @@ variable "repo_name" {
 variable "owner" {
   description = "Github owner/project name for CloudBuild Trigger to act against"
   type        = string
-  default     = "devopsfreelance"
+  default     = "resourcebusy"
 }
 #### END GitHub #####
 
